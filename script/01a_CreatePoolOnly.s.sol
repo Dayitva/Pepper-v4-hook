@@ -27,8 +27,8 @@ contract CreatePoolOnly is Script, Constants, Config {
     uint160 startingPrice = 79228162514264337593543950336; // floor(sqrt(1) * 2^96)
 
     // --- liquidity position configuration --- //
-    uint256 public token0Amount = 1e18;
-    uint256 public token1Amount = 1e18;
+    uint256 public token0Amount = 1e17;
+    uint256 public token1Amount = 250e18;
 
     // range of the position
     int24 tickLower = -600; // must be a multiple of tickSpacing

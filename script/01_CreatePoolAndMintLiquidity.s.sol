@@ -12,6 +12,7 @@ import {IERC20} from "forge-std/interfaces/IERC20.sol";
 
 import {Constants} from "./base/Constants.sol";
 import {Config} from "./base/Config.sol";
+import {console} from "forge-std/console.sol";
 
 contract CreatePoolAndAddLiquidityScript is Script, Constants, Config {
     using CurrencyLibrary for Currency;
@@ -26,11 +27,12 @@ contract CreatePoolAndAddLiquidityScript is Script, Constants, Config {
     int24 tickSpacing = 60;
 
     // starting price of the pool, in sqrtPriceX96
-    uint160 startingPrice = 79228162514264337593543950336; // floor(sqrt(1) * 2^96)
+    // uint160 startingPrice = 79228162514264337593543950336; // floor(sqrt(1) * 2^96)
+    uint160 startingPrice = 3961408125713216879677197516800; // floor(sqrt(2500) * 2^96)
 
     // --- liquidity position configuration --- //
-    uint256 public token0Amount = 1e18;
-    uint256 public token1Amount = 1e18;
+    uint256 public token0Amount = 1e17;
+    uint256 public token1Amount = 250e18;
 
     // range of the position
     int24 tickLower = -600; // must be a multiple of tickSpacing
@@ -63,6 +65,8 @@ contract CreatePoolAndAddLiquidityScript is Script, Constants, Config {
         uint256 amount0Max = token0Amount + 1 wei;
         uint256 amount1Max = token1Amount + 1 wei;
 
+        console.log("liquidity", liquidity);
+
         (bytes memory actions, bytes[] memory mintParams) =
             _mintLiquidityParams(pool, tickLower, tickUpper, liquidity, amount0Max, amount1Max, address(this), hookData);
 
@@ -79,6 +83,14 @@ contract CreatePoolAndAddLiquidityScript is Script, Constants, Config {
 
         // if the pool is an ETH pair, native tokens are to be transferred
         uint256 valueToPass = currency0.isAddressZero() ? amount0Max : 0;
+
+        console.log("valueToPass", valueToPass);
+        // console.log("currency0", currency0);
+        // console.log("currency1", currency1);
+        // console.log("token0", token0);
+        // console.log("token1", token1);
+        console.log("posm", address(posm));
+        console.log("PERMIT2", address(PERMIT2));
 
         vm.startBroadcast();
         tokenApprovals();
@@ -110,10 +122,11 @@ contract CreatePoolAndAddLiquidityScript is Script, Constants, Config {
     }
 
     function tokenApprovals() public {
-        if (!currency0.isAddressZero()) {
-            token0.approve(address(PERMIT2), type(uint256).max);
-            PERMIT2.approve(address(token0), address(posm), type(uint160).max, type(uint48).max);
-        }
+
+        // if (!currency0.isAddressZero()) {
+        //     token0.approve(address(PERMIT2), type(uint256).max);
+        //     PERMIT2.approve(address(token0), address(posm), type(uint160).max, type(uint48).max);
+        // }
         if (!currency1.isAddressZero()) {
             token1.approve(address(PERMIT2), type(uint256).max);
             PERMIT2.approve(address(token1), address(posm), type(uint160).max, type(uint48).max);
